@@ -5,10 +5,6 @@ let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
 
-
-
-
-
 public_users.post("/register", (req,res) => {
     const username = req.body.username;
     const password = req.body.password;
@@ -24,9 +20,34 @@ public_users.post("/register", (req,res) => {
     return res.status(404).json({message: "Unable to register user."});
 });
 
+// Promise-Based Function of get all books
+let GetAllBooksPromise = new Promise((resolve,reject) => {
+resolve(JSON.stringify(books,null,4));
+});
+
+
+GetAllBooksPromise.then((successMessage) => {
+    console.log("From Callback 1" + successMessage)
+});
+
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
-    res.send(JSON.stringify(books,null,4));
+    res.status(200).send(JSON.stringify(books,null,4));
+});
+
+//Get books by isbn promise based
+let GetBooksISBN = (isbn) => new Promise((resolve,reject) => {
+    let book = {};
+    for (const [key, value] of Object.entries(books)) {
+        if(value.ISBN === isbn) {
+            book = value;
+        }
+      }
+    resolve(JSON.stringify(book,null,4)); 
+});
+    
+GetBooksISBN("123456").then((successMessage) => {
+    console.log("From Callback2 " + successMessage)
 });
 
 
@@ -42,7 +63,21 @@ public_users.get('/isbn/:isbn',function (req, res) {
     res.send(JSON.stringify(book,null,4)); 
 });
 
-  
+  // Get book based on author promise based
+let GetBooksAuthor = (author) => new Promise((resolve,reject) => {
+    let book = {};
+    for (const [key, value] of Object.entries(books)) {
+        if(value.author === author) {
+            book = value;
+        }
+      }
+    resolve(JSON.stringify(book,null,4)); 
+});
+    
+GetBooksAuthor("Chinua Achebe").then((successMessage) => {
+    console.log("From Callback 3" + successMessage)
+});
+
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
     const author = req.params.author;
@@ -53,6 +88,22 @@ public_users.get('/author/:author',function (req, res) {
         }
       }
     res.send(JSON.stringify(book,null,4)); 
+});
+
+//get book based on title promise based
+let GetBooksTitle = (title) => new Promise((resolve,reject) => {
+    let book = {};
+    for (const [key, value] of Object.entries(books)) {
+        if(value.title === title) {
+       
+            book = value;
+        }
+      }
+    resolve(JSON.stringify(book,null,4)); 
+});
+    
+GetBooksTitle("One Thousand and One Nights").then((successMessage) => {
+    console.log("From Callback4 " + successMessage)
 });
 
 // Get all books based on title
