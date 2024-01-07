@@ -39,12 +39,12 @@ regd_users.post("/login", (req,res) => {
     if (authenticatedUser(username,password)) {
       let accessToken = jwt.sign({
         data: password
-      }, 'access', { expiresIn: 60 * 60 });
+      }, 'access', { expiresIn: 600 * 600 });
   
       req.session.authorization = {
         accessToken,username
     }
-    return res.status(200).send("User successfully logged in");
+    return res.status(200).send("User successfully logged in " + req.session.authorization );
     } else {
       return res.status(208).json({message: "Invalid Login. Check username and password"});
     }
@@ -53,16 +53,19 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
     let isbn = req.params.isbn;
-    let newReview = req.query.body;
-    let usern = session.user;
+    let newReview = req.query.newrev;
+    let usern = req.session.authorization['username'];
+    console.log(usern);
+    console.log(newReview, isbn);
     let found = false;
     if(newReview.length == 0) {
-        return res.status(408).json({message: "Please enter a valid login"});
+        return res.status(408).json({message: "Please enter a valid review"});
     }
     for (const [key, value] of Object.entries(books)) {
         if(value.ISBN === isbn) {
+            console.log(key, value)
             found = true;
-            books.key.review[usern] = newReview;
+            books[key]["reviews"][usern] = newReview;
         }
       }
       if (found) {
@@ -74,12 +77,8 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
 regd_users.delete("/auth/review/:isbn", (req, res) => {
     let isbn = req.params.isbn;
-    let newReview = req.query.body;
-    let usern = session.user;
+    let usern = req.session.authorization['username'];
     let found = false;
-    if(newReview.length == 0) {
-        return res.status(408).json({message: "Please enter a valid login"});
-    }
     for (const [key, value] of Object.entries(books)) {
         if(value.ISBN === isbn) {
             if(value.reviews.haskey(usern)) {
@@ -98,6 +97,7 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
     return res.status(408).json({message: "book with ISBN: " + isbn + "not found"});
   }
 });
+
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
