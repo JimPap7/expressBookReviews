@@ -55,21 +55,22 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
     let isbn = req.params.isbn;
     let newReview = req.query.newrev;
     let usern = req.session.authorization['username'];
+    let keys1 = "";
     console.log(usern);
     console.log(newReview, isbn);
     let found = false;
     if(newReview.length == 0) {
         return res.status(408).json({message: "Please enter a valid review"});
     }
-    for (const [key, value] of Object.entries(books)) {
+    for (var [key, value] of Object.entries(books)) {
         if(value.ISBN === isbn) {
-            console.log(key, value)
-            found = true;
-            books[key]["reviews"][usern] = newReview;
+            keys1 = key;
+            value.reviews[usern] = newReview;
+            books[key] = value;
         }
       }
       if (found) {
-        return res.status(200).json({message: "review submitted succesfully"});
+        return res.status(200).json({message: "review submitted succesfully now:" + books[key1]});
         } else {
           return res.status(408).json({message: "book with ISBN: " + isbn + "not found"});
         }
